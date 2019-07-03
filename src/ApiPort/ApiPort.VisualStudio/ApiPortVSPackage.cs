@@ -4,6 +4,7 @@
 using ApiPortVS.Reporting;
 using ApiPortVS.Resources;
 using ApiPortVS.Views;
+using Microsoft.Fx.Portability.Roslyn;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -53,6 +54,8 @@ namespace ApiPortVS
             {
                 throw new InvalidOperationException(LocalizedStrings.CouldNotFindAssemblyRedirectResolver);
             }
+
+            ServiceLocator.SetCache((ICatalogCache)_serviceProvider.GetService(typeof(ICatalogCache)));
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 

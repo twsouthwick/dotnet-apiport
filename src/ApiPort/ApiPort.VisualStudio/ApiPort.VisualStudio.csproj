@@ -127,6 +127,10 @@
     <None Include="Resources\Images.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\Microsoft.Fx.Portability.Roslyn\Microsoft.Fx.Portability.Roslyn.csproj">
+      <Project>{2608913b-61e6-4158-bba4-7d116d91fe5c}</Project>
+      <Name>Microsoft.Fx.Portability.Roslyn</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ApiPort.VisualStudio.Common\ApiPort.VisualStudio.Common.csproj">
       <Project>{60798b82-b273-4d39-aa52-021c7228a0ad}</Project>
       <Name>ApiPort.VisualStudio.Common</Name>

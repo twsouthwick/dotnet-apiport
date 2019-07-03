@@ -15,6 +15,7 @@ using Microsoft.Fx.Portability;
 using Microsoft.Fx.Portability.Analyzer;
 using Microsoft.Fx.Portability.Proxy;
 using Microsoft.Fx.Portability.Reporting;
+using Microsoft.Fx.Portability.Roslyn;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -130,6 +131,11 @@ namespace ApiPortVS
             builder.RegisterType<CciSourceLineMapper>()
                 .As<ISourceLineMapper>()
                 .InstancePerLifetimeScope();
+
+            // For local caching
+            builder.RegisterType<ServiceCatalogCache>()
+                .As<ICatalogCache>()
+                .SingleInstance();
 
             // VS type registration
             // Registers all of the Visual Studio Package components.

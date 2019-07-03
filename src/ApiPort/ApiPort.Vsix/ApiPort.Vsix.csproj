@@ -68,6 +68,12 @@
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="15.6.170" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\Microsoft.Fx.Portability.Roslyn\Microsoft.Fx.Portability.Roslyn.csproj">
+      <Project>{2608913b-61e6-4158-bba4-7d116d91fe5c}</Project>
+      <Name>Microsoft.Fx.Portability.Roslyn</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
     <ProjectReference Include="..\ApiPort.VisualStudio.2017\ApiPort.VisualStudio.2017.csproj">
       <Project>{C0629A8D-7107-46CF-83B8-408E1886AB36}</Project>
       <Name>ApiPort.VisualStudio.2017</Name>
