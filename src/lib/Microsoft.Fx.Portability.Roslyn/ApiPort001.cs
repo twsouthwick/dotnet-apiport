@@ -40,18 +40,6 @@ namespace Microsoft.Fx.Portability.Roslyn
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationAction(action =>
-            {
-                var cache = GetCache();
-
-                if (cache is null)
-                {
-                    return;
-                }
-
-                cache.UpdateCatalog();
-            });
-
             context.RegisterOperationAction(action =>
             {
                 var cache = GetCache();
@@ -60,8 +48,6 @@ namespace Microsoft.Fx.Portability.Roslyn
                 {
                     return;
                 }
-
-                cache.UpdateCatalog();
 
                 var docId = GetDocumentationId(action.Operation);
 

@@ -13,23 +13,36 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Fx.Portability.Roslyn
 {
-    public class ServiceCatalogCache : ICatalogCache
+    public sealed class ServiceCatalogCache : ICatalogCache, IDisposable
     {
         private readonly IApiPortService _service;
+        private readonly IProgressReporter _reporter;
+        private readonly CancellationTokenSource _cts;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0, 1);
 
-        private ImmutableDictionary<string, bool> _cache;
+        private ConcurrentDictionary<string, bool> _cache;
         private ConcurrentStringHashSet _unknown;
 
-        public ServiceCatalogCache(IApiPortService service)
+        public ServiceCatalogCache(IApiPortService service, IProgressReporter reporter)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
-            _cache = ImmutableDictionary.Create<string, bool>(StringComparer.Ordinal);
+            _cache = new ConcurrentDictionary<string, bool>(StringComparer.Ordinal);
             _unknown = new ConcurrentStringHashSet();
+            _reporter = reporter;
+            _cts = new CancellationTokenSource();
+
+            Task.Run(async () => await UpdateCatalogAsync());
 
             Framework = new FrameworkName(".NET Core, Version=3.0.0");
         }
 
         public FrameworkName Framework { get; }
+
+        public void Dispose()
+        {
+            _cts.Cancel();
+            _semaphore.Dispose();
+        }
 
         public ApiStatus GetApiStatus(string api)
         {
@@ -39,31 +52,41 @@ namespace Microsoft.Fx.Portability.Roslyn
             }
 
             _unknown.Add(api);
+            _semaphore.Release();
 
             return ApiStatus.Unknown;
         }
 
-        public void UpdateCatalog()
+        public async Task UpdateCatalogAsync()
         {
-            Task.Run(async () =>
+            try
             {
-                try
+                while (!_cts.Token.IsCancellationRequested)
                 {
-                    var unknown = Interlocked.Exchange(ref _unknown, new ConcurrentStringHashSet());
-                    var result = await _service.QueryDocIdsAsync(unknown).ConfigureAwait(false);
-                    var builder = _cache.ToBuilder();
+                    await _semaphore.WaitAsync(_cts.Token).ConfigureAwait(false);
 
-                    foreach (var api in result.Response)
+                    if (_unknown.Count > 0)
                     {
-                        builder[api.Definition.DocId] = api.Supported.Contains(Framework);
-                    }
+                        var unknown = Interlocked.Exchange(ref _unknown, new ConcurrentStringHashSet());
 
-                    Interlocked.Exchange(ref _cache, builder.ToImmutable());
+                        try
+                        {
+                            var result = await _service.QueryDocIdsAsync(unknown).ConfigureAwait(false);
+
+                            foreach (var api in result.Response)
+                            {
+                                _cache.TryAdd(api.Definition.DocId, api.Supported.Contains(Framework));
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
                 }
-                catch (Exception)
-                {
-                }
-            });
+            }
+            catch (OperationCanceledException)
+            {
+            }
         }
 
         private class ConcurrentStringHashSet : IEnumerable<string>
@@ -71,6 +94,8 @@ namespace Microsoft.Fx.Portability.Roslyn
             private readonly ConcurrentDictionary<string, byte> _dict = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
 
             public bool Add(string str) => _dict.TryAdd(str, 0);
+
+            public int Count => _dict.Count;
 
             public IEnumerator<string> GetEnumerator() => _dict.Keys.GetEnumerator();
 
