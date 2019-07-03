@@ -16,27 +16,24 @@ namespace Microsoft.Fx.Portability.Roslyn
     public sealed class ServiceCatalogCache : ICatalogCache, IDisposable
     {
         private readonly IApiPortService _service;
-        private readonly IProgressReporter _reporter;
         private readonly CancellationTokenSource _cts;
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0, 1);
+        private readonly SemaphoreSlim _semaphore;
+        private readonly ConcurrentDictionary<string, bool> _cache;
 
-        private ConcurrentDictionary<string, bool> _cache;
         private ConcurrentStringHashSet _unknown;
 
-        public ServiceCatalogCache(IApiPortService service, IProgressReporter reporter)
+        public ServiceCatalogCache(IApiPortService service)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _cache = new ConcurrentDictionary<string, bool>(StringComparer.Ordinal);
+            _semaphore = new SemaphoreSlim(0, 1);
             _unknown = new ConcurrentStringHashSet();
-            _reporter = reporter;
             _cts = new CancellationTokenSource();
 
             Task.Run(async () => await UpdateCatalogAsync());
-
-            Framework = new FrameworkName(".NET Core, Version=3.0");
         }
 
-        public FrameworkName Framework { get; }
+        public FrameworkName Framework { get; } = new FrameworkName(".NET Core, Version=3.0");
 
         public void Dispose()
         {
