@@ -33,7 +33,7 @@ namespace Microsoft.Fx.Portability.Roslyn
 
             Task.Run(async () => await UpdateCatalogAsync());
 
-            Framework = new FrameworkName(".NET Core, Version=3.0.0");
+            Framework = new FrameworkName(".NET Core, Version=3.0");
         }
 
         public FrameworkName Framework { get; }
