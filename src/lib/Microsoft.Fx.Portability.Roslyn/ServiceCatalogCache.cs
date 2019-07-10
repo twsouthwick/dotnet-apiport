@@ -19,15 +19,16 @@ namespace Microsoft.Fx.Portability.Roslyn
         private readonly IApiPortService _service;
         private readonly CancellationTokenSource _cts;
         private readonly SemaphoreSlim _semaphore;
-        private readonly ConcurrentDictionary<string, bool> _cache;
+        private readonly ConcurrentDictionary<string, HashSet<FrameworkName>> _cache;
 
         private ConcurrentStringHashSet _unknown;
+        private ImmutableArray<FrameworkName> _currentNames;
 
         public ServiceCatalogCache(IApiPortService service, IAnalyzerSettings settings)
         {
             _settings = settings;
             _service = service ?? throw new ArgumentNullException(nameof(service));
-            _cache = new ConcurrentDictionary<string, bool>(StringComparer.Ordinal);
+            _cache = new ConcurrentDictionary<string, HashSet<FrameworkName>>(StringComparer.Ordinal);
             _semaphore = new SemaphoreSlim(0, 1);
             _unknown = new ConcurrentStringHashSet();
             _cts = new CancellationTokenSource();
@@ -44,9 +45,11 @@ namespace Microsoft.Fx.Portability.Roslyn
                 _cache.Clear();
                 _unknown.Clear();
             }
+            else if (string.Equals(e.PropertyName, nameof(IAnalyzerSettings.Platforms), StringComparison.Ordinal))
+            {
+                ImmutableInterlocked.InterlockedExchange(ref _currentNames, _settings.Platforms.ToImmutableArray());
+            }
         }
-
-        public FrameworkName Framework { get; } = new FrameworkName(".NET Core, Version=3.0");
 
         public void Dispose()
         {
@@ -54,16 +57,33 @@ namespace Microsoft.Fx.Portability.Roslyn
             _semaphore.Dispose();
         }
 
-        public ApiStatus GetApiStatus(string api)
+        public ApiStatus GetApiStatus(string api, out ImmutableArray<FrameworkName> unsupported)
         {
+            unsupported = ImmutableArray.Create<FrameworkName>();
+
             if (!_settings.IsAutomaticAnalyze)
             {
                 return ApiStatus.Off;
             }
 
-            if (_cache.TryGetValue(api, out var isAvailable))
+            if (_cache.TryGetValue(api, out var set))
             {
-                return isAvailable ? ApiStatus.Available : ApiStatus.Unavailable;
+                unsupported = _currentNames;
+
+                foreach (var version in _currentNames)
+                {
+                    if (set.Contains(version))
+                    {
+                        unsupported = unsupported.Remove(version);
+                    }
+                }
+
+                if (unsupported.IsEmpty)
+                {
+                    return ApiStatus.Available;
+                }
+
+                return ApiStatus.Unavailable;
             }
 
             _unknown.Add(api);
@@ -93,7 +113,7 @@ namespace Microsoft.Fx.Portability.Roslyn
 
                             foreach (var api in result.Response)
                             {
-                                _cache.TryAdd(api.Definition.DocId, api.Supported.Contains(Framework));
+                                _cache.TryAdd(api.Definition.DocId, new HashSet<FrameworkName>(api.Supported));
                             }
                         }
                         catch (Exception)

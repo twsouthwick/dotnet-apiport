@@ -10,6 +10,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace ApiPortVS.Models
 {
@@ -112,6 +113,23 @@ namespace ApiPortVS.Models
                 Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, LocalizedStrings.UnableToSaveFileFormat, OptionsFilePath));
 
                 return false;
+            }
+        }
+
+        IEnumerable<FrameworkName> IAnalyzerSettings.Platforms
+        {
+            get
+            {
+                foreach (var target in Platforms)
+                {
+                    foreach (var version in target.Versions)
+                    {
+                        if (version.IsSelected)
+                        {
+                            yield return new FrameworkName(version.PlatformName, version.Version);
+                        }
+                    }
+                }
             }
         }
     }

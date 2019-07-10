@@ -51,9 +51,9 @@ namespace Microsoft.Fx.Portability.Roslyn
 
                 var docId = GetDocumentationId(action.Operation);
 
-                if (cache.GetApiStatus(docId) == ApiStatus.Unavailable)
+                if (cache.GetApiStatus(docId, out var names) == ApiStatus.Unavailable)
                 {
-                    action.ReportDiagnostic(Diagnostic.Create(Rule, action.Operation.Syntax.GetLocation(), docId, cache.Framework));
+                    action.ReportDiagnostic(Diagnostic.Create(Rule, action.Operation.Syntax.GetLocation(), docId, string.Join(", ", names)));
                 }
             }, OperationKind.MethodReference, OperationKind.Invocation, OperationKind.FieldReference, OperationKind.EventReference);
         }
