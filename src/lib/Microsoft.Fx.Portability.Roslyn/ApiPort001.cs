@@ -14,7 +14,7 @@ namespace Microsoft.Fx.Portability.Roslyn
     {
         public const string DiagnosticId = "ApiPort001";
 
-        private const string Category = "Naming";
+        private const string Category = "Porting";
 
         private readonly ICatalogCache _cache;
 

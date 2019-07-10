@@ -62,6 +62,9 @@ namespace Microsoft.Fx.Portability.Roslyn
                 {
                     await _semaphore.WaitAsync(_cts.Token).ConfigureAwait(false);
 
+                    // Give a bit of time in case the buffer is being filled by the compiler
+                    await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+
                     if (_unknown.Count > 0)
                     {
                         var unknown = Interlocked.Exchange(ref _unknown, new ConcurrentStringHashSet());
