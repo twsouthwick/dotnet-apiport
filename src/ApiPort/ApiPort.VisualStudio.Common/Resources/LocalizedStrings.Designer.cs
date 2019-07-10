@@ -106,6 +106,24 @@ namespace ApiPortVS.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .NET Portability Analyzer now supports automatic analysis..
+        /// </summary>
+        public static string AutomaticAnalysisNotification {
+            get {
+                return ResourceManager.GetString("AutomaticAnalysisNotification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatically analyze solution.
+        /// </summary>
+        public static string AutomaticAnalyze {
+            get {
+                return ResourceManager.GetString("AutomaticAnalyze", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Available reports:.
         /// </summary>
         public static string AvailableReports {
@@ -355,6 +373,15 @@ namespace ApiPortVS.Resources {
         public static string OpenDirectory {
             get {
                 return ResourceManager.GetString("OpenDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open options.
+        /// </summary>
+        public static string OpenOptions {
+            get {
+                return ResourceManager.GetString("OpenOptions", resourceCulture);
             }
         }
         

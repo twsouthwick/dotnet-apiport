@@ -3,6 +3,7 @@
 
 using ApiPortVS.Models;
 using ApiPortVS.Reporting;
+using ApiPortVS.Resources;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -39,8 +40,8 @@ namespace ApiPortVS
                 return;
             }
 
-            var text = new InfoBarTextSpan(".NET Portability Analyzer now supports automatic analysis.");
-            var link = new InfoBarHyperlink("Open options", _context);
+            var text = new InfoBarTextSpan(LocalizedStrings.AutomaticAnalysisNotification);
+            var link = new InfoBarHyperlink(LocalizedStrings.OpenOptions, _context);
 
             var spans = new InfoBarTextSpan[] { text };
             var actions = new InfoBarActionItem[] { link };
