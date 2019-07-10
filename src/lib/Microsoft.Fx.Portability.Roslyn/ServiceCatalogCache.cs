@@ -2,11 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,6 +51,8 @@ namespace Microsoft.Fx.Portability.Roslyn
 
         public void Dispose()
         {
+            _settings.PropertyChanged -= SettingsPropertyChanged;
+
             _cts.Cancel();
             _semaphore.Dispose();
         }
@@ -92,16 +92,13 @@ namespace Microsoft.Fx.Portability.Roslyn
             return ApiStatus.Unknown;
         }
 
-        public async Task UpdateCatalogAsync()
+        private async Task UpdateCatalogAsync()
         {
             try
             {
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     await _semaphore.WaitAsync(_cts.Token).ConfigureAwait(false);
-
-                    // Give a bit of time in case the buffer is being filled by the compiler
-                    await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
 
                     if (_unknown.Count > 0)
                     {
@@ -125,21 +122,6 @@ namespace Microsoft.Fx.Portability.Roslyn
             catch (OperationCanceledException)
             {
             }
-        }
-
-        private class ConcurrentStringHashSet : IEnumerable<string>
-        {
-            private readonly ConcurrentDictionary<string, byte> _dict = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
-
-            public bool Add(string str) => _dict.TryAdd(str, 0);
-
-            public int Count => _dict.Count;
-
-            public void Clear() => _dict.Clear();
-
-            public IEnumerator<string> GetEnumerator() => _dict.Keys.GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }
 }
