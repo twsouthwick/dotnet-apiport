@@ -65,11 +65,8 @@ namespace Microsoft.Fx.Portability.Roslyn
         private bool Include(ISymbol symbol)
         {
             var assembly = symbol.ContainingAssembly.Identity;
-            var publicKeyToken = BitConverter.ToString(assembly.PublicKeyToken.ToArray())
-                .Replace("-", string.Empty)
-                .ToLowerInvariant();
 
-            return _filter.IsFrameworkAssembly(symbol.ContainingAssembly.Identity.Name, publicKeyToken);
+            return _filter.IsFrameworkAssembly(assembly.Name, assembly.PublicKey);
         }
 
         public ApiStatus GetApiStatus(ISymbol symbol, out ImmutableArray<FrameworkName> unsupported)

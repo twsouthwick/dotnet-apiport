@@ -22,7 +22,7 @@ namespace Microsoft.Fx.Portability.Roslyn.Test
         }
 
         [Fact]
-        public void TestMethod1()
+        public void NoInput()
         {
             var test = string.Empty;
 
@@ -30,7 +30,7 @@ namespace Microsoft.Fx.Portability.Roslyn.Test
         }
 
         [Fact]
-        public void TestMethod2()
+        public void SingleUnsupportedApi()
         {
             var test = @"
     using System;
@@ -63,7 +63,7 @@ namespace Microsoft.Fx.Portability.Roslyn.Test
                 }
             };
 
-            _cache.GetApiStatus(api, out _).Returns(x =>
+            _cache.GetApiStatus(Arg.Is<ISymbol>(s => s.GetDocumentationCommentId() == api), out _).Returns(x =>
             {
                 x[1] = ImmutableArray.Create(_framework);
                 return ApiStatus.Unavailable;
