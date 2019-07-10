@@ -11,13 +11,7 @@ namespace ApiPortVS
 {
     public class NotifyPropertyBase : INotifyPropertyChanged
     {
-        private static bool _switchThread = IsInVs();
-
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public NotifyPropertyBase()
-        {
-        }
 
         protected void UpdateProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
         {
@@ -37,24 +31,9 @@ namespace ApiPortVS
                 return;
             }
 
-            if (_switchThread)
-            {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            }
+            await ApiPortThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             propertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private static bool IsInVs()
-        {
-            try
-            {
-                return ThreadHelper.JoinableTaskFactory != null;
-            }
-            catch (NullReferenceException)
-            {
-                return false;
-            }
         }
     }
 }
