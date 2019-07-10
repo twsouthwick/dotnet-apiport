@@ -1,10 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.CodeAnalysis;
+using Microsoft.Fx.Portability.Analyzer;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,13 +19,14 @@ namespace Microsoft.Fx.Portability.Roslyn
         private readonly IAnalyzerSettings _settings;
         private readonly IApiPortService _service;
         private readonly CancellationTokenSource _cts;
+        private readonly IDependencyFilter _filter;
         private readonly SemaphoreSlim _semaphore;
         private readonly ConcurrentDictionary<string, HashSet<FrameworkName>> _cache;
 
         private ConcurrentStringHashSet _unknown;
         private ImmutableArray<FrameworkName> _currentNames;
 
-        public ServiceCatalogCache(IApiPortService service, IAnalyzerSettings settings)
+        public ServiceCatalogCache(IApiPortService service, IAnalyzerSettings settings, IDependencyFilter filter)
         {
             _settings = settings;
             _service = service ?? throw new ArgumentNullException(nameof(service));
@@ -30,6 +34,7 @@ namespace Microsoft.Fx.Portability.Roslyn
             _semaphore = new SemaphoreSlim(0, 1);
             _unknown = new ConcurrentStringHashSet();
             _cts = new CancellationTokenSource();
+            _filter = filter;
 
             _settings.PropertyChanged += SettingsPropertyChanged;
 
@@ -57,7 +62,17 @@ namespace Microsoft.Fx.Portability.Roslyn
             _semaphore.Dispose();
         }
 
-        public ApiStatus GetApiStatus(string api, out ImmutableArray<FrameworkName> unsupported)
+        private bool Include(ISymbol symbol)
+        {
+            var assembly = symbol.ContainingAssembly.Identity;
+            var publicKeyToken = BitConverter.ToString(assembly.PublicKeyToken.ToArray())
+                .Replace("-", string.Empty)
+                .ToLowerInvariant();
+
+            return _filter.IsFrameworkAssembly(symbol.ContainingAssembly.Identity.Name, publicKeyToken);
+        }
+
+        public ApiStatus GetApiStatus(ISymbol symbol, out ImmutableArray<FrameworkName> unsupported)
         {
             unsupported = ImmutableArray.Create<FrameworkName>();
 
@@ -65,6 +80,8 @@ namespace Microsoft.Fx.Portability.Roslyn
             {
                 return ApiStatus.Off;
             }
+
+            var api = symbol.GetDocumentationCommentId();
 
             if (_cache.TryGetValue(api, out var set))
             {
@@ -86,8 +103,11 @@ namespace Microsoft.Fx.Portability.Roslyn
                 return ApiStatus.Unavailable;
             }
 
-            _unknown.Add(api);
-            _semaphore.Release();
+            if (Include(symbol))
+            {
+                _unknown.Add(api);
+                _semaphore.Release();
+            }
 
             return ApiStatus.Unknown;
         }

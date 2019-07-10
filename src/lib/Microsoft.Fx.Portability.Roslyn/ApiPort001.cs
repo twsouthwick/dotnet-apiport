@@ -47,24 +47,24 @@ namespace Microsoft.Fx.Portability.Roslyn
                     return;
                 }
 
-                var docId = GetDocumentationId(action.Operation);
+                var symbol = GetDocumentationId(action.Operation);
 
-                if (cache.GetApiStatus(docId, out var names) == ApiStatus.Unavailable)
+                if (cache.GetApiStatus(symbol, out var names) == ApiStatus.Unavailable)
                 {
-                    action.ReportDiagnostic(Diagnostic.Create(Rule, action.Operation.Syntax.GetLocation(), docId, string.Join(", ", names)));
+                    action.ReportDiagnostic(Diagnostic.Create(Rule, action.Operation.Syntax.GetLocation(), symbol.GetDocumentationCommentId(), string.Join(", ", names)));
                 }
             }, OperationKind.MethodReference, OperationKind.Invocation, OperationKind.FieldReference, OperationKind.EventReference);
         }
 
-        private static string GetDocumentationId(IOperation operation)
+        private static ISymbol GetDocumentationId(IOperation operation)
         {
             if (operation is IMemberReferenceOperation member)
             {
-                return member.Member.GetDocumentationCommentId();
+                return member.Member;
             }
             else if (operation is IInvocationOperation invocation)
             {
-                return invocation.TargetMethod.GetDocumentationCommentId();
+                return invocation.TargetMethod;
             }
             else
             {

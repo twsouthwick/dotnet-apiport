@@ -137,6 +137,9 @@ namespace ApiPortVS
             builder.RegisterType<ServiceCatalogCache>()
                 .As<ICatalogCache>()
                 .SingleInstance();
+            builder.RegisterType<DotNetFrameworkFilter>()
+                .As<IDependencyFilter>()
+                .SingleInstance();
 
             // VS type registration
             // Registers all of the Visual Studio Package components.
