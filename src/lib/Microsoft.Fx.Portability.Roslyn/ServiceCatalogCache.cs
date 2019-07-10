@@ -61,16 +61,9 @@ namespace Microsoft.Fx.Portability.Roslyn
             _semaphore.Dispose();
         }
 
-        private bool Include(ISymbol symbol)
-        {
-            var assembly = symbol.ContainingAssembly.Identity;
-
-            return _filter.IsFrameworkAssembly(assembly.Name, assembly.PublicKey);
-        }
-
         public ApiStatus GetApiStatus(ISymbol symbol, out ImmutableArray<FrameworkName> unsupported)
         {
-            unsupported = ImmutableArray.Create<FrameworkName>();
+            unsupported = ImmutableArray<FrameworkName>.Empty;
 
             if (!_settings.IsAutomaticAnalyze)
             {
@@ -99,7 +92,9 @@ namespace Microsoft.Fx.Portability.Roslyn
                 return ApiStatus.Unavailable;
             }
 
-            if (Include(symbol))
+            var assembly = symbol.ContainingAssembly.Identity;
+
+            if (_filter.IsFrameworkAssembly(assembly.Name, assembly.PublicKey))
             {
                 _unknown.Add(api);
                 _semaphore.Release();
