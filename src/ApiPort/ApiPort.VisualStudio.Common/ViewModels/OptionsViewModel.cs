@@ -319,6 +319,8 @@ namespace ApiPortVS.ViewModels
                         ErrorMessage = string.Empty;
                     }
 
+                    _optionsModel.PlatformsUpdated();
+
                     break;
             }
         }

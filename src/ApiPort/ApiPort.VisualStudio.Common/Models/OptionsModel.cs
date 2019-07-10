@@ -83,6 +83,8 @@ namespace ApiPortVS.Models
 
         public bool ShowAutomaticAnalyzeNotification { get; set; } = true;
 
+        public void PlatformsUpdated() => OnPropertyUpdated(nameof(Platforms));
+
         public static OptionsModel Load()
         {
             try
