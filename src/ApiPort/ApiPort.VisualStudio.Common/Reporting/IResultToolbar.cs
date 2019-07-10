@@ -8,5 +8,7 @@ namespace ApiPortVS.Reporting
     public interface IResultToolbar
     {
         Task ShowToolbarAsync();
+
+        void ShowOptionsPage();
     }
 }

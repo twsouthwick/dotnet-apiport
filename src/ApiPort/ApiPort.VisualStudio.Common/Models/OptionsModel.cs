@@ -81,6 +81,8 @@ namespace ApiPortVS.Models
             set { UpdateProperty(ref _isAutomaticAnalyze, value); }
         }
 
+        public bool ShowAutomaticAnalyzeNotification { get; set; } = true;
+
         public static OptionsModel Load()
         {
             try
