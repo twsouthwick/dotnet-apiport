@@ -44,6 +44,8 @@
                     <RowDefinition />
                     <RowDefinition Height="10" />
                     <RowDefinition />
+                    <RowDefinition Height="10" />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="{x:Static const:LocalizedStrings.DefaultOutputDirectory}"
@@ -64,6 +66,7 @@
                          AutomationProperties.Name="{x:Static const:LocalizedStrings.DefaultReportFilename}"
                          KeyboardNavigation.TabIndex="1"
                          Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2" />
+                <CheckBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" IsChecked="{Binding IsAutomaticAnalyze, Mode=TwoWay}">Automatically analyze solution</CheckBox>
             </Grid>
         </GroupBox>
 

@@ -16,7 +16,7 @@ namespace ApiPortVS.Models
     /// <summary>
     /// The options for ApiPort VS that are persisted.
     /// </summary>
-    public class OptionsModel : NotifyPropertyBase
+    public class OptionsModel : NotifyPropertyBase, IAnalyzerSettings
     {
         private static readonly string OptionsFilePath;
         private static readonly string DefaultOutputDirectory;
@@ -26,6 +26,7 @@ namespace ApiPortVS.Models
         private IList<TargetPlatform> _platforms;
         private string _outputDirectory;
         private string _outputName;
+        private bool _isAutomaticAnalyze;
 
         static OptionsModel()
         {
@@ -71,6 +72,12 @@ namespace ApiPortVS.Models
         {
             get { return _outputName; }
             set { UpdateProperty(ref _outputName, string.IsNullOrWhiteSpace(value) ? DefaultOutputFileName : value); }
+        }
+
+        public bool IsAutomaticAnalyze
+        {
+            get { return _isAutomaticAnalyze; }
+            set { UpdateProperty(ref _isAutomaticAnalyze, value); }
         }
 
         public static OptionsModel Load()

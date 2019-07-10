@@ -15,6 +15,7 @@ namespace Microsoft.Fx.Portability.Roslyn
 {
     public sealed class ServiceCatalogCache : ICatalogCache, IDisposable
     {
+        private readonly IAnalyzerSettings _settings;
         private readonly IApiPortService _service;
         private readonly CancellationTokenSource _cts;
         private readonly SemaphoreSlim _semaphore;
@@ -22,15 +23,27 @@ namespace Microsoft.Fx.Portability.Roslyn
 
         private ConcurrentStringHashSet _unknown;
 
-        public ServiceCatalogCache(IApiPortService service)
+        public ServiceCatalogCache(IApiPortService service, IAnalyzerSettings settings)
         {
+            _settings = settings;
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _cache = new ConcurrentDictionary<string, bool>(StringComparer.Ordinal);
             _semaphore = new SemaphoreSlim(0, 1);
             _unknown = new ConcurrentStringHashSet();
             _cts = new CancellationTokenSource();
 
+            _settings.PropertyChanged += SettingsPropertyChanged;
+
             Task.Run(async () => await UpdateCatalogAsync());
+        }
+
+        private void SettingsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (string.Equals(e.PropertyName, nameof(IAnalyzerSettings.IsAutomaticAnalyze), StringComparison.Ordinal) && !_settings.IsAutomaticAnalyze)
+            {
+                _cache.Clear();
+                _unknown.Clear();
+            }
         }
 
         public FrameworkName Framework { get; } = new FrameworkName(".NET Core, Version=3.0");
@@ -43,6 +56,11 @@ namespace Microsoft.Fx.Portability.Roslyn
 
         public ApiStatus GetApiStatus(string api)
         {
+            if (!_settings.IsAutomaticAnalyze)
+            {
+                return ApiStatus.Off;
+            }
+
             if (_cache.TryGetValue(api, out var isAvailable))
             {
                 return isAvailable ? ApiStatus.Available : ApiStatus.Unavailable;
@@ -96,6 +114,8 @@ namespace Microsoft.Fx.Portability.Roslyn
             public bool Add(string str) => _dict.TryAdd(str, 0);
 
             public int Count => _dict.Count;
+
+            public void Clear() => _dict.Clear();
 
             public IEnumerator<string> GetEnumerator() => _dict.Keys.GetEnumerator();
 

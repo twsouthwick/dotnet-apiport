@@ -75,6 +75,7 @@ namespace ApiPortVS
                 .SingleInstance();
             builder.Register(_ => OptionsModel.Load())
                 .As<OptionsModel>()
+                .As<IAnalyzerSettings>()
                 .OnRelease(m => m.Save())
                 .SingleInstance();
             builder.RegisterType<TargetMapper>()

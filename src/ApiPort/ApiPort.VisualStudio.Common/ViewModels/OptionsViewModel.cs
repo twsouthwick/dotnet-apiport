@@ -13,6 +13,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using VsShell = Microsoft.VisualStudio.Shell;
+
 namespace ApiPortVS.ViewModels
 {
     public sealed class OptionsViewModel : NotifyPropertyBase, IDisposable
@@ -60,6 +62,20 @@ namespace ApiPortVS.ViewModels
             set
             {
                 _optionsModel.Formats = value;
+                OnPropertyUpdated();
+            }
+        }
+
+        public bool IsAutomaticAnalyze
+        {
+            get
+            {
+                return _optionsModel.IsAutomaticAnalyze;
+            }
+
+            set
+            {
+                _optionsModel.IsAutomaticAnalyze = value;
                 OnPropertyUpdated();
             }
         }
@@ -211,10 +227,6 @@ namespace ApiPortVS.ViewModels
         {
             var targets = await GetTargetsAsync().ConfigureAwait(false);
 
-            // TODO we do this to ensure the TargetPlatforms below are created on the
-            // UI thread. Probably better to do this with VSThreadingService.SwitchToMainThreadAsync..
-            // but that doesn't just work here.
-            SynchronizationContext.SetSynchronizationContext(Context);
             var canonicalPlatforms = targets.GroupBy(t => t.Name).Select(t =>
             {
                 return new TargetPlatform
@@ -230,6 +242,8 @@ namespace ApiPortVS.ViewModels
                     .ToList(),
                 };
             });
+
+            await VsShell.ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             UpdateTargetPlatforms(canonicalPlatforms);
         }

@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Fx.Portability.Roslyn
+using System.ComponentModel;
+
+namespace Microsoft.Fx.Portability
 {
-    public enum ApiStatus
+    public interface IAnalyzerSettings : INotifyPropertyChanged
     {
-        Unknown,
-        Available,
-        Unavailable,
-        Off,
+        bool IsAutomaticAnalyze { get; }
     }
 }
