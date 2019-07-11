@@ -31,7 +31,7 @@ using Tasks = System.Threading.Tasks;
 
 namespace ApiPortVS
 {
-    internal sealed class ServiceProvider : IDisposable, IAsyncServiceProvider, IServiceProvider
+    internal sealed class ServiceProvider : IDisposable, Microsoft.VisualStudio.Shell.IAsyncServiceProvider, IServiceProvider
     {
         private const string DefaultEndpoint = @"https://portability.dot.net/";
         private static readonly DirectoryInfo AssemblyDirectory = new FileInfo(typeof(ServiceProvider).Assembly.Location).Directory;
@@ -75,6 +75,7 @@ namespace ApiPortVS
                 .SingleInstance();
             builder.Register(_ => OptionsModel.Load())
                 .As<OptionsModel>()
+                .As<IAnalyzerSettings>()
                 .OnRelease(m => m.Save())
                 .SingleInstance();
             builder.RegisterType<TargetMapper>()
@@ -136,6 +137,12 @@ namespace ApiPortVS
             builder.RegisterType<ServiceCatalogCache>()
                 .As<ICatalogCache>()
                 .SingleInstance();
+            builder.RegisterType<DotNetFrameworkFilter>()
+                .As<IDependencyFilter>()
+                .SingleInstance();
+            builder.RegisterType<AutoAnalyzeNotifier>()
+                .AutoActivate()
+                .OnActivated(n => n.Instance.Notify());
 
             // VS type registration
             // Registers all of the Visual Studio Package components.
@@ -162,7 +169,8 @@ namespace ApiPortVS
             builder.RegisterComInstance<SVsWebProxy, IVsWebProxy>();
             builder.RegisterComInstance<SVsWebBrowsingService, IVsWebBrowsingService>();
             builder.RegisterComInstance<SVsStatusbar, IVsStatusbar>();
-
+            builder.RegisterComInstance<SVsInfoBarUIFactory, IVsInfoBarUIFactory>();
+            builder.RegisterComInstance<SVsShell, IVsShell>();
             builder.RegisterCom<DTE>(await serviceProvider.GetServiceAsync(typeof(DTE)));
 
             var componentModel = await serviceProvider.GetServiceAsync(typeof(SComponentModel)) as IComponentModel;
@@ -218,7 +226,7 @@ namespace ApiPortVS
             return new OutputViewModel(validReports.Select(x => x.FullName));
         }
 
-        Task<object> IAsyncServiceProvider.GetServiceAsync(Type serviceType) => System.Threading.Tasks.Task.FromResult<object>(_container.Resolve(serviceType));
+        Task<object> Microsoft.VisualStudio.Shell.IAsyncServiceProvider.GetServiceAsync(Type serviceType) => System.Threading.Tasks.Task.FromResult<object>(_container.Resolve(serviceType));
 
         public object GetService(Type serviceType) => _container.Resolve(serviceType);
     }

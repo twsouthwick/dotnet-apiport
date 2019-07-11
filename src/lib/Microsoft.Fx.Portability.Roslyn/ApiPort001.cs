@@ -14,7 +14,12 @@ namespace Microsoft.Fx.Portability.Roslyn
     {
         public const string DiagnosticId = "ApiPort001";
 
-        private const string Category = "Naming";
+        private const string Category = "Porting";
+
+        private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
+        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
         private readonly ICatalogCache _cache;
 
@@ -29,13 +34,6 @@ namespace Microsoft.Fx.Portability.Roslyn
 
         public ICatalogCache GetCache() => _cache ?? ServiceLocator.Cache;
 
-        // You can change these strings in the Resources.resx file. If you do not want your analyzer to be localize-able, you can use regular strings for Title and MessageFormat.
-        // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Localizing%20Analyzers.md for more on localization
-        private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
@@ -49,24 +47,24 @@ namespace Microsoft.Fx.Portability.Roslyn
                     return;
                 }
 
-                var docId = GetDocumentationId(action.Operation);
+                var symbol = GetDocumentationId(action.Operation);
 
-                if (cache.GetApiStatus(docId) == ApiStatus.Unavailable)
+                if (cache.GetApiStatus(symbol, out var names) == ApiStatus.Unavailable)
                 {
-                    action.ReportDiagnostic(Diagnostic.Create(Rule, action.Operation.Syntax.GetLocation(), docId, cache.Framework));
+                    action.ReportDiagnostic(Diagnostic.Create(Rule, action.Operation.Syntax.GetLocation(), symbol.GetDocumentationCommentId(), string.Join(", ", names)));
                 }
             }, OperationKind.MethodReference, OperationKind.Invocation, OperationKind.FieldReference, OperationKind.EventReference);
         }
 
-        private static string GetDocumentationId(IOperation operation)
+        private static ISymbol GetDocumentationId(IOperation operation)
         {
             if (operation is IMemberReferenceOperation member)
             {
-                return member.Member.GetDocumentationCommentId();
+                return member.Member;
             }
             else if (operation is IInvocationOperation invocation)
             {
-                return invocation.TargetMethod.GetDocumentationCommentId();
+                return invocation.TargetMethod;
             }
             else
             {

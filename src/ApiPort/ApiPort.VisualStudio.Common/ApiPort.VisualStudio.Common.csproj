@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\lib\Microsoft.Fx.Portability.Cci\Microsoft.Fx.Portability.Cci.csproj" />
+    <ProjectReference Include="..\..\lib\Microsoft.Fx.Portability.Roslyn\Microsoft.Fx.Portability.Roslyn.csproj" />
     <ProjectReference Include="..\..\lib\Microsoft.Fx.Portability\Microsoft.Fx.Portability.csproj" />
   </ItemGroup>
 

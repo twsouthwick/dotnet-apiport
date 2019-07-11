@@ -4,6 +4,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute;
+using System.Collections.Immutable;
 using System.Runtime.Versioning;
 using TestHelper;
 using Xunit;
@@ -12,16 +13,16 @@ namespace Microsoft.Fx.Portability.Roslyn.Test
 {
     public class ApiPort001Tests : DiagnosticVerifier
     {
+        private readonly FrameworkName _framework = new FrameworkName(".NET Core, Version=3.1");
         private readonly ICatalogCache _cache;
 
         public ApiPort001Tests()
         {
             _cache = Substitute.For<ICatalogCache>();
-            _cache.Framework.Returns(new FrameworkName(".NET Core, Version=3.1"));
         }
 
         [Fact]
-        public void TestMethod1()
+        public void NoInput()
         {
             var test = string.Empty;
 
@@ -29,7 +30,7 @@ namespace Microsoft.Fx.Portability.Roslyn.Test
         }
 
         [Fact]
-        public void TestMethod2()
+        public void SingleUnsupportedApi()
         {
             var test = @"
     using System;
@@ -54,7 +55,7 @@ namespace Microsoft.Fx.Portability.Roslyn.Test
             var expected = new DiagnosticResult
             {
                 Id = "ApiPort001",
-                Message = $"The API '{api}' is not supported on {_cache.Framework}.",
+                Message = $"The API '{api}' is not supported on {_framework}.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations = new[]
                 {
@@ -62,7 +63,11 @@ namespace Microsoft.Fx.Portability.Roslyn.Test
                 }
             };
 
-            _cache.GetApiStatus(api).Returns(ApiStatus.Unavailable);
+            _cache.GetApiStatus(Arg.Is<ISymbol>(s => s.GetDocumentationCommentId() == api), out _).Returns(x =>
+            {
+                x[1] = ImmutableArray.Create(_framework);
+                return ApiStatus.Unavailable;
+            });
 
             VerifyCSharpDiagnostic(test, expected);
         }

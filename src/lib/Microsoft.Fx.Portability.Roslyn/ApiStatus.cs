@@ -8,5 +8,6 @@ namespace Microsoft.Fx.Portability.Roslyn
         Unknown,
         Available,
         Unavailable,
+        Off,
     }
 }

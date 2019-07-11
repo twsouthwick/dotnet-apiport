@@ -10,13 +10,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace ApiPortVS.Models
 {
     /// <summary>
     /// The options for ApiPort VS that are persisted.
     /// </summary>
-    public class OptionsModel : NotifyPropertyBase
+    public class OptionsModel : NotifyPropertyBase, IAnalyzerSettings
     {
         private static readonly string OptionsFilePath;
         private static readonly string DefaultOutputDirectory;
@@ -26,6 +27,7 @@ namespace ApiPortVS.Models
         private IList<TargetPlatform> _platforms;
         private string _outputDirectory;
         private string _outputName;
+        private bool _isAutomaticAnalyze;
 
         static OptionsModel()
         {
@@ -73,6 +75,16 @@ namespace ApiPortVS.Models
             set { UpdateProperty(ref _outputName, string.IsNullOrWhiteSpace(value) ? DefaultOutputFileName : value); }
         }
 
+        public bool IsAutomaticAnalyze
+        {
+            get { return _isAutomaticAnalyze; }
+            set { UpdateProperty(ref _isAutomaticAnalyze, value); }
+        }
+
+        public bool ShowAutomaticAnalyzeNotification { get; set; } = true;
+
+        public void PlatformsUpdated() => OnPropertyUpdated(nameof(Platforms));
+
         public static OptionsModel Load()
         {
             try
@@ -105,6 +117,23 @@ namespace ApiPortVS.Models
                 Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, LocalizedStrings.UnableToSaveFileFormat, OptionsFilePath));
 
                 return false;
+            }
+        }
+
+        IEnumerable<FrameworkName> IAnalyzerSettings.Platforms
+        {
+            get
+            {
+                foreach (var target in Platforms)
+                {
+                    foreach (var version in target.Versions)
+                    {
+                        if (version.IsSelected)
+                        {
+                            yield return new FrameworkName(version.PlatformName, version.Version);
+                        }
+                    }
+                }
             }
         }
     }

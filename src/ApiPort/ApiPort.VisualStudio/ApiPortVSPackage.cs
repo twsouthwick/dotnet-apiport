@@ -31,7 +31,7 @@ namespace ApiPortVS
 
         internal static IServiceProvider LocalServiceProvider => _serviceProvider;
 
-        internal static IAsyncServiceProvider LocalServiceProviderAsync => _serviceProvider;
+        internal static Microsoft.VisualStudio.Shell.IAsyncServiceProvider LocalServiceProviderAsync => _serviceProvider;
 
         protected override void Dispose(bool disposing)
         {
@@ -126,5 +126,7 @@ namespace ApiPortVS
         private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) => _assemblyResolver.ResolveAssembly(args.Name, args.RequestingAssembly);
 
         private void ShowOptionsPage(object sender, EventArgs e) => ShowOptionPage(typeof(OptionsPage));
+
+        void IResultToolbar.ShowOptionsPage() => ShowOptionPage(typeof(OptionsPage));
     }
 }
