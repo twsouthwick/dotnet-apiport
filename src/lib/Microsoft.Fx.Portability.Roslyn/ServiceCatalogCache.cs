@@ -94,7 +94,7 @@ namespace Microsoft.Fx.Portability.Roslyn
 
             var assembly = symbol.ContainingAssembly.Identity;
 
-            if (_filter.IsFrameworkAssembly(assembly.Name, assembly.PublicKey))
+            if (_filter.IsFrameworkAssembly(assembly.Name, new PublicKeyToken(assembly.PublicKey)))
             {
                 _unknown.Add(api);
                 _semaphore.Release();
