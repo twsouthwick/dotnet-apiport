@@ -47,7 +47,7 @@ namespace Microsoft.Fx.Portability.Roslyn
                     return;
                 }
 
-                var symbol = GetDocumentationId(action.Operation);
+                var symbol = GetSymbol(action.Operation);
 
                 if (cache.GetApiStatus(symbol, out var names) == ApiStatus.Unavailable)
                 {
@@ -56,7 +56,7 @@ namespace Microsoft.Fx.Portability.Roslyn
             }, OperationKind.MethodReference, OperationKind.Invocation, OperationKind.FieldReference, OperationKind.EventReference);
         }
 
-        private static ISymbol GetDocumentationId(IOperation operation)
+        private static ISymbol GetSymbol(IOperation operation)
         {
             if (operation is IMemberReferenceOperation member)
             {
