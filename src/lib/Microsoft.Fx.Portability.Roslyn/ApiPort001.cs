@@ -9,7 +9,7 @@ using System.Collections.Immutable;
 
 namespace Microsoft.Fx.Portability.Roslyn
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic, LanguageNames.FSharp)]
     public class ApiPort001 : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "ApiPort001";
