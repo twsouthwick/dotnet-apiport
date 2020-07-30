@@ -123,6 +123,11 @@ namespace Microsoft.Fx.Portability.Analyzer
                     {
                         var metadataReader = GetMetadataReader(peFile);
 
+                        if (_assemblyFilter.IsFrameworkAssembly(metadataReader.FormatAssemblyInfo()))
+                        {
+                            return Enumerable.Empty<MemberDependency>();
+                        }
+
                         AddReferencedAssemblies(metadataReader);
 
                         var helper = new DependencyFinderEngineHelper(_assemblyFilter, metadataReader, file, _objectFinder);
