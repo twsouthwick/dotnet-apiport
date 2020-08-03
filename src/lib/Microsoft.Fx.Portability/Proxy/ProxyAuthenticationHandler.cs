@@ -74,12 +74,10 @@ namespace Microsoft.Fx.Portability.Proxy
                 return true;
             }
 
-#if FEATURE_WEBEXCEPTION
             if (ex.InnerException is WebException webException && webException.Response is HttpWebResponse response)
             {
                 return response?.StatusCode == HttpStatusCode.ProxyAuthenticationRequired;
             }
-#endif
 
             return false;
         }
