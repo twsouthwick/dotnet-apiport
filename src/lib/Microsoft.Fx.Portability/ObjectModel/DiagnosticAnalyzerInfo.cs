@@ -8,9 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.Fx.Portability.ObjectModel
 {
-#if FEATURE_SERIALIZABLE
     [Serializable]
-#endif
     public class DiagnosticAnalyzerInfo
     {
         private static readonly Regex DiagnosticIdRegex = new Regex(@"(\d+)", RegexOptions.Compiled);

@@ -5,9 +5,7 @@ using System;
 
 namespace Microsoft.Fx.Portability.ObjectModel
 {
-#if FEATURE_SERIALIZABLE
     [Serializable]
-#endif
     public class CompatibilityRange
     {
         public string FrameworkName { get; set; }
