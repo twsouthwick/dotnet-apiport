@@ -173,9 +173,6 @@ namespace Microsoft.Fx.Portability
 
             var clientHandler = new HttpClientHandler
             {
-#if !FEATURE_SERVICE_POINT_MANAGER
-                SslProtocols = CompressedHttpClient.SupportedSSLProtocols,
-#endif
                 Proxy = proxyProvider?.GetProxy(uri),
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             };

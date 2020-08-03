@@ -21,20 +21,13 @@ namespace Microsoft.Fx.Portability
 {
     internal class CompressedHttpClient : HttpClient
     {
-#if FEATURE_SERVICE_POINT_MANAGER
         internal const SecurityProtocolType SupportedSecurityProtocols = SecurityProtocolType.Tls12;
-#else
-        internal const SslProtocols SupportedSSLProtocols = SslProtocols.Tls12;
-#endif
 
         /// <param name="productName">Product name that will be displayed in the User Agent string of requests.</param>
         /// <param name="productVersion">Product version that will be displayed in the User Agent string of requests.</param>
         public CompressedHttpClient(ProductInformation info)
             : this(info, new HttpClientHandler
             {
-#if !FEATURE_SERVICE_POINT_MANAGER
-                SslProtocols = SupportedSSLProtocols,
-#endif
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             })
         {
@@ -43,9 +36,7 @@ namespace Microsoft.Fx.Portability
         public CompressedHttpClient(ProductInformation info, HttpMessageHandler handler)
             : base(handler)
         {
-#if FEATURE_SERVICE_POINT_MANAGER
             ServicePointManager.SecurityProtocol = SupportedSecurityProtocols;
-#endif
 
             DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             DefaultRequestHeaders.AcceptLanguage.TryParseAdd(CultureInfo.CurrentCulture.ToString());
