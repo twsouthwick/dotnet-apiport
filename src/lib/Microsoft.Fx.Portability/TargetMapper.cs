@@ -65,7 +65,6 @@ namespace Microsoft.Fx.Portability
         {
             yield return path;
 
-#if FEATURE_ASSEMBLY_LOCATION
             const string DefaultFileName = "TargetMap.xml";
 
             var location = typeof(TargetMapper).Assembly.Location;
@@ -76,7 +75,6 @@ namespace Microsoft.Fx.Portability
             }
 
             yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DefaultFileName);
-#endif
         }
 
         public void Load(Stream stream)
