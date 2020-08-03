@@ -324,22 +324,10 @@ namespace Microsoft.Fx.Portability.Tests
        </Targets>
      </ApiTool> ";
 
-            try
-            {
-                var map = LoadXml(xml);
-            }
-            catch (TargetMapperException e)
-            {
-#if FEATURE_XML_SCHEMA
-                Assert.NotNull(e.InnerException);
-                Assert.Equal(string.Format(CultureInfo.CurrentCulture, e.InnerException.Message), e.Message);
-#else
-                Assert.Equal(string.Format(CultureInfo.CurrentCulture, LocalizedStrings.MalformedMap, string.Empty), e.Message);
-#endif
-                return;
-            }
+            var e = Assert.Throws<TargetMapperException>(() => LoadXml(xml));
 
-            Assert.True(false, "Expected exception was not thrown");
+            Assert.NotNull(e.InnerException);
+            Assert.Equal(string.Format(CultureInfo.CurrentCulture, e.InnerException.Message), e.Message);
         }
 
         [Fact]

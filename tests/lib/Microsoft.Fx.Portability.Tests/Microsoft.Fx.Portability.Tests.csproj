@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
     <NonShipping>true</NonShipping>
-    <DefineConstants>$(DefineConstants);FEATURE_XML_SCHEMA</DefineConstants>
   </PropertyGroup>
 
   <!-- FxCop does not understand this target platform and will output the

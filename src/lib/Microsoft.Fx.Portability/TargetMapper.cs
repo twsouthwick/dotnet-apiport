@@ -11,10 +11,7 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Xml;
 using System.Xml.Linq;
-
-#if FEATURE_XML_SCHEMA
 using System.Xml.Schema;
-#endif
 
 namespace Microsoft.Fx.Portability
 {
@@ -102,7 +99,6 @@ namespace Microsoft.Fx.Portability
                 {
                     var doc = XDocument.Load(xmlReader);
 
-#if FEATURE_XML_SCHEMA
                     // Validate against schema on targets where schema is supported
                     using (var xsdStream = typeof(TargetMapper).Assembly.GetManifestResourceStream("Microsoft.Fx.Portability.Targets.xsd"))
                     {
@@ -119,20 +115,12 @@ namespace Microsoft.Fx.Portability
                             doc.Validate(schemas, (s, e) => { throw new TargetMapperException(e.Message, e.Exception); });
                         }
                     }
-#endif
 
                     foreach (var item in doc.Descendants("Target"))
                     {
                         var alias = (string)item.Attribute("Alias");
                         var name = (string)item.Attribute("Name");
 
-#if !FEATURE_XML_SCHEMA
-                        // We must manually check this now that schema validation is not available
-                        if (alias == null || name == null)
-                        {
-                            throw new TargetMapperException(string.Format(CultureInfo.CurrentCulture, LocalizedStrings.MalformedMap, path));
-                        }
-#endif
                         AddAlias(alias, name);
                     }
                 }
