@@ -42,13 +42,16 @@ namespace Microsoft.Fx.OpenXmlExtensions
         }
 
         public static Table AddTable(this Worksheet worksheet, int rowStart, int rowCount, int columnStart, params string[] headers)
+            => worksheet.AddTable(rowStart, rowCount, columnStart, headers);
+
+        public static Table AddTable(this Worksheet worksheet, int rowStart, int rowCount, int columnStart, IReadOnlyCollection<string> headers)
         {
             if (rowCount == 1)
             {
                 rowCount++;
             }
 
-            var range = ComputeRange(rowStart, rowCount, columnStart, headers.Length);
+            var range = ComputeRange(rowStart, rowCount, columnStart, headers.Count);
 
             var sheetViews = worksheet.GetFirstChild<SheetViews>();
             if (sheetViews == null)
@@ -87,11 +90,14 @@ namespace Microsoft.Fx.OpenXmlExtensions
             };
             tableDefPart.Table.Reference = range;
 
-            var columnCount = (uint)headers.Length;
+            var columnCount = (uint)headers.Count;
             var tc = tableDefPart.Table.AppendChild(new TableColumns() { Count = columnCount });
-            for (uint i = 0; i < columnCount; i++)
+            var i = 0U;
+
+            foreach (var header in headers)
             {
-                tc.AppendChild(new TableColumn() { Id = i + 1, Name = headers[i] });
+                tc.AppendChild(new TableColumn() { Id = i + 1, Name = header });
+                i++;
             }
 
             tableDefPart.Table.AutoFilter = new AutoFilter
