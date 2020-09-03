@@ -5,6 +5,11 @@ namespace Microsoft.Fx.Portability.Reports
 {
     public class Text : Content
     {
-        public string Content { get; set; }
+        public Text(string content)
+        {
+            Content = content;
+        }
+
+        public string Content { get; }
     }
 }

@@ -21,6 +21,14 @@ namespace Microsoft.Fx.Portability.Reports
             builder.RegisterType<DetailsPageGenerator>()
                 .As<IPageGenerator>()
                 .SingleInstance();
+
+            builder.RegisterType<UnresolvedAssemblyPageGenerator>()
+                .As<IPageGenerator>()
+                .SingleInstance();
+
+            builder.RegisterType<RecommendedOrderPageGenerator>()
+                .As<IPageGenerator>()
+                .SingleInstance();
         }
     }
 }

@@ -9,6 +9,8 @@ namespace Microsoft.Fx.Portability.Reports
 
         public abstract void Visit(Divider divider);
 
+        public abstract void Visit(Text text);
+
         public void Visit(Page page)
         {
             var first = true;
@@ -27,6 +29,10 @@ namespace Microsoft.Fx.Portability.Reports
                 if (content is Table table)
                 {
                     Visit(table);
+                }
+                else if (content is Text text)
+                {
+                    Visit(text);
                 }
             }
         }

@@ -36,6 +36,11 @@ namespace Microsoft.Fx.Portability.Reports
             }
         }
 
+        public override void Visit(Text text)
+        {
+            _ws.AddRow(text.Content);
+        }
+
         private bool _columnWidthSet = false;
 
         public override void Visit(Divider divider)
@@ -52,6 +57,12 @@ namespace Microsoft.Fx.Portability.Reports
             {
                 _ws = ws;
                 _count = 1;
+            }
+
+            public void AddRow(params object[] items)
+            {
+                _count++;
+                _ws.AddRow(items);
             }
 
             public void AddRow(IReadOnlyCollection<object> items)

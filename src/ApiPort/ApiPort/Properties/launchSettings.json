@@ -2,7 +2,7 @@
   "profiles": {
     "ApiPort": {
       "commandName": "Project",
-      "commandLineArgs": "analyze -f C:\\Users\\tasou\\Projects\\Software\\dotnet-apiport\\bin\\Debug\\ApiPort\\netcoreapp3.1 -r excel"
+      "commandLineArgs": "analyze -f C:\\Users\\tasou\\Projects\\Software\\dotnet-apiport\\bin\\Debug\\ApiPort\\netcoreapp3.1 -r excel --entrypoint ApiPort"
     }
   }
 }
