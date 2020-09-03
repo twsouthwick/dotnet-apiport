@@ -9,7 +9,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.Fx.Portability.Reports
+namespace Microsoft.Fx.Portability.Reports.Generators
 {
     public class SummaryPageGenerator : IPageGenerator
     {
