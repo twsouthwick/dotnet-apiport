@@ -2,11 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.Fx.Portability.ObjectModel;
+using System.Collections.Generic;
 
 namespace Microsoft.Fx.Portability.Reports
 {
     public interface IPageGenerator
     {
-        Page GeneratePage(AnalyzeResponse response);
+        IEnumerable<Page> GeneratePages(AnalyzeResponse response);
     }
 }

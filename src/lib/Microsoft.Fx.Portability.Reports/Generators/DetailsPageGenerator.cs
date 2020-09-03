@@ -18,9 +18,9 @@ namespace Microsoft.Fx.Portability.Reports.Generators
             _mapper = mapper;
         }
 
-        public Page GeneratePage(AnalyzeResponse response)
+        public IEnumerable<Page> GeneratePages(AnalyzeResponse response)
         {
-            return new Page
+            yield return new Page
             {
                 Title = LocalizedStrings.DetailsPageTitle,
                 Content = new[]

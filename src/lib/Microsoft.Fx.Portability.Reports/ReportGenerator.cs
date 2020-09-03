@@ -19,7 +19,10 @@ namespace Microsoft.Fx.Portability.Reports
         {
             foreach (var generator in _generators)
             {
-                yield return generator.GeneratePage(response);
+                foreach (var page in generator.GeneratePages(response))
+                {
+                    yield return page;
+                }
             }
         }
     }

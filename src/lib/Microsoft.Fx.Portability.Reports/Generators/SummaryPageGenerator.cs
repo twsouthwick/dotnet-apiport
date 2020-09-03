@@ -20,11 +20,11 @@ namespace Microsoft.Fx.Portability.Reports.Generators
             _mapper = mapper;
         }
 
-        public Page GeneratePage(AnalyzeResponse response)
+        public IEnumerable<Page> GeneratePages(AnalyzeResponse response)
         {
             var targetNames = _mapper.GetTargetNames(response.Targets, alwaysIncludeVersion: true);
 
-            return new Page
+            yield return new Page
             {
                 Title = LocalizedStrings.PortabilitySummaryPageTitle,
                 Content = new[]
