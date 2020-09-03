@@ -8,6 +8,7 @@ using Microsoft.Fx.Portability.Analyzer;
 using Microsoft.Fx.Portability.ObjectModel;
 using Microsoft.Fx.Portability.Proxy;
 using Microsoft.Fx.Portability.Reporting;
+using Microsoft.Fx.Portability.Reports;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,7 +83,7 @@ namespace ApiPort
                 .As<IDependencyFilter>()
                 .SingleInstance();
 
-            builder.RegisterType<ReportGenerator>()
+            builder.RegisterType<Microsoft.Fx.Portability.Reporting.ReportGenerator>()
                 .As<IReportGenerator>()
                 .SingleInstance();
 
@@ -113,6 +114,8 @@ namespace ApiPort
 
             builder.RegisterType<SystemObjectFinder>()
                 .SingleInstance();
+
+            builder.RegisterModule<ReportGeneratorModule>();
 
             builder.RegisterAdapter<ICommandLineOptions, IApiPortOptions>((ctx, opts) =>
             {

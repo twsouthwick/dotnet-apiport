@@ -89,7 +89,7 @@ namespace ApiPort
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceError(ex.ToString());
+                    Console.WriteLine(ex.ToString());
 
                     WriteError(LocalizedStrings.UnknownException);
                 }
@@ -112,7 +112,7 @@ namespace ApiPort
 
         private static void WriteException(Exception ex)
         {
-            Trace.TraceError(ex.ToString());
+            Console.WriteLine(ex.ToString());
 
             // Display the message as it has already been localized
             WriteError(ex.Message);
