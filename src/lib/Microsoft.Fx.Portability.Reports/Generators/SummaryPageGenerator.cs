@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.Fx.Portability.ObjectModel;
+using Microsoft.Fx.Portability.Reporting.ObjectModel;
 using Microsoft.Fx.Portability.Reports.Resources;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 
@@ -47,10 +47,24 @@ namespace Microsoft.Fx.Portability.Reports.Generators
                         {
                             new Row(LocalizedStrings.CatalogLastUpdated, response.CatalogLastUpdated.ToString("D", CultureInfo.CurrentCulture)),
                             new Row(LocalizedStrings.HowToReadTheExcelTable)
-                        }
+                        },
+                        ColumnWidth = GetColumnWidths(response.ReportingResult),
                     },
                 }
             };
+        }
+
+        private IReadOnlyCollection<double> GetColumnWidths(ReportingResult analysisResult)
+        {
+            var columnWidths = new List<double>
+            {
+                ColumnWidths.AssemblyName,
+                ColumnWidths.TFM
+            };
+
+            columnWidths.AddRange(Enumerable.Repeat(ColumnWidths.Targets, analysisResult.Targets.Count));
+
+            return columnWidths;
         }
 
         private Table BuildSummaryTable(AnalyzeResponse response, IEnumerable<string> targetNames)
@@ -76,6 +90,13 @@ namespace Microsoft.Fx.Portability.Reports.Generators
                     yield return new Row(summaryData);
                 }
             }
+        }
+
+        internal static class ColumnWidths
+        {
+            public const double Targets = 15;
+            public const double AssemblyName = 40;
+            public const double TFM = 30;
         }
     }
 }

@@ -11,5 +11,7 @@ namespace Microsoft.Fx.Portability.Reports
         public IReadOnlyCollection<string> Headers { get; set; } = Array.Empty<string>();
 
         public IReadOnlyCollection<Row> Rows { get; set; } = Array.Empty<Row>();
+
+        public IReadOnlyCollection<double> ColumnWidth { get; set; } = Array.Empty<double>();
     }
 }

@@ -48,7 +48,32 @@ namespace Microsoft.Fx.Portability.Reports.Generators
             {
                 Headers = detailsPageHeader,
                 Rows = BuildDetailsRows(analysisResult, showAssemblyColumn).ToList(),
+                ColumnWidth = GetColumnWidths(analysisResult)
             };
+        }
+
+        private static class ColumnWidth
+        {
+            public const double TargetType = 40;
+            public const double TargetMember = 40;
+            public const double AssemblyName = 30;
+            public const double RecommendedChanges = 50;
+            public const double Targets = 15;
+        }
+
+        private IReadOnlyCollection<double> GetColumnWidths(ReportingResult analysisResult)
+        {
+            var columnWidths = new List<double>
+            {
+                ColumnWidth.TargetType,
+                ColumnWidth.TargetMember,
+                ColumnWidth.AssemblyName
+            };
+
+            columnWidths.AddRange(Enumerable.Repeat(ColumnWidth.Targets, analysisResult.Targets.Count));
+            columnWidths.Add(ColumnWidth.RecommendedChanges);
+
+            return columnWidths;
         }
 
         private IEnumerable<Row> BuildDetailsRows(ReportingResult analysisResult, bool showAssemblyColumn)

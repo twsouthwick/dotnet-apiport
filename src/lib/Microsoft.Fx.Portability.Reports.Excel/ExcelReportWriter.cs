@@ -7,10 +7,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Fx.OpenXmlExtensions;
 using Microsoft.Fx.Portability.ObjectModel;
 using Microsoft.Fx.Portability.Reporting;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.Fx.Portability.Reports
@@ -32,87 +29,6 @@ namespace Microsoft.Fx.Portability.Reports
 
         public ResultFormatInformation Format { get; }
 
-        private class WorksheetVisitor : PageVisitor
-        {
-            private readonly Wrapper _ws;
-
-            public WorksheetVisitor(Worksheet ws)
-            {
-                _ws = new Wrapper(ws);
-            }
-
-            public override void Visit(Table table)
-            {
-                using (var t = _ws.CreateTable(table.Headers))
-                {
-                    foreach (var row in table.Rows)
-                    {
-                        _ws.AddRow(row.Data);
-                    }
-                }
-            }
-
-            public override void Visit(Divider divider)
-            {
-                _ws.AddRow();
-            }
-
-            private class Wrapper
-            {
-                private readonly Worksheet _ws;
-                private int _count;
-
-                public Wrapper(Worksheet ws)
-                {
-                    _ws = ws;
-                    _count = 1;
-                }
-
-                public void AddRow(IReadOnlyCollection<object> items)
-                {
-                    _count++;
-                    _ws.AddRow(items);
-                }
-
-                public void AddRow()
-                {
-                    _count++;
-                    _ws.AddRow();
-                }
-
-                public IDisposable CreateTable(IReadOnlyCollection<string> headers)
-                    => new TableCreator(this, headers);
-
-                private class TableCreator : IDisposable
-                {
-                    private readonly Wrapper _wrapper;
-                    private readonly int _start;
-                    private readonly IReadOnlyCollection<string> _headers;
-
-                    public TableCreator(Wrapper wrapper, IReadOnlyCollection<string> headers)
-                    {
-                        _wrapper = wrapper;
-                        _start = _wrapper._count;
-                        _headers = headers;
-
-                        if (headers.Any())
-                        {
-                            _wrapper.AddRow(headers);
-                        }
-                    }
-
-                    public void Dispose()
-                    {
-                        if (_headers.Any())
-                        {
-                            var tableRowCount = _wrapper._count - _start;
-                            _wrapper._ws.AddTable(_start, tableRowCount, 1, _headers);
-                        }
-                    }
-                }
-            }
-        }
-
         public Task WriteStreamAsync(Stream stream, AnalyzeResponse response)
         {
             var pages = _generator.GeneratePages(response);
@@ -130,7 +46,7 @@ namespace Microsoft.Fx.Portability.Reports
 
                     foreach (var page in pages)
                     {
-                        var ws = new WorksheetVisitor(spreadsheet.AddWorksheet(page.Title));
+                        var ws = new WorksheetPageVisitor(spreadsheet.AddWorksheet(page.Title));
 
                         ws.Visit(page);
                     }
